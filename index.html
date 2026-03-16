@@ -382,18 +382,7 @@
   .collab-info { flex: 1; }
   .collab-name { color: var(--text); }
   .collab-phone { color: var(--muted); font-size: 11px; }
-  .delete-btn {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 13px;
-    padding: 2px 7px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    font-family: 'DM Mono', monospace;
-  }
-  .delete-btn:hover { border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.08); }
+
   .loading-dots { color: var(--muted); font-size: 12px; padding: 8px 0; }
   .loading-dots::after { content: '...'; animation: dots 1.2s infinite; }
   @keyframes dots { 0%,20%{content:'.'} 40%{content:'..'} 60%,100%{content:'...'} }
@@ -590,20 +579,13 @@ async function loadCollabsForProject(id) {
         item.className = 'collab-item';
         var initials = c.name.split(' ').map(function(w){return w[0]||'';}).join('').toUpperCase().slice(0,2);
         var col = colors[c.name.charCodeAt(0) % colors.length];
-        (function(rowId){
-          item.innerHTML =
-            '<div class="collab-avatar" style="background:'+col+'">'+initials+'</div>' +
-            '<div class="collab-info">' +
-              '<div class="collab-name">'+escHtml(c.name)+'</div>' +
-              '<div class="collab-phone">'+escHtml(c.phone)+(c.note?' &middot; '+escHtml(c.note):'')+'</div>' +
-            '</div>' +
-            '<button class="delete-btn" title="Remove my entry">&#10005;</button>';
-          item.querySelector('.delete-btn').onclick = function(e) {
-            e.stopPropagation();
-            deleteCollab(rowId);
-          };
-          list.appendChild(item);
-        })(c.id);
+        item.innerHTML =
+          '<div class="collab-avatar" style="background:'+col+'">'+initials+'</div>' +
+          '<div class="collab-info">' +
+            '<div class="collab-name">'+escHtml(c.name)+'</div>' +
+            '<div class="collab-phone">'+escHtml(c.phone)+(c.note?' &middot; '+escHtml(c.note):'')+'</div>' +
+          '</div>';
+        list.appendChild(item);
       });
     }
   } catch(e) {
@@ -642,17 +624,6 @@ async function submitCollab() {
   }
   btn.disabled = false;
   btn.textContent = 'REGISTER INTEREST \u2192';
-}
-
-async function deleteCollab(id) {
-  if (!confirm('Remove your entry from this project?')) return;
-  try {
-    await sbFetch('collaborators?id=eq.' + id, { method: 'DELETE' });
-    await loadCollabsForProject(currentProjectId);
-    await loadAllCounts();
-  } catch(e) {
-    alert('Could not delete. Try again.');
-  }
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────────
